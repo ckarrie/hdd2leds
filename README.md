@@ -43,8 +43,8 @@ https://twitter.com/ckarrie/status/1486347204881268738
 
 # Todo
 - `socketserver.ThreadingTCPServer` for using multiple clients
-- rework of tcp message send:
-  - `"210210120121,15"`
+- rework of tcp message send (dont' send on each device, send on each loop instead):
+  - `"213210120121,15"`
   - each char is a disc
-  - `0` = off, `1` = read, `2` = write
+  - `0` = off, `1` = read, `2` = write, `3` = read + write
   - `,15` = shift of 15 led's
