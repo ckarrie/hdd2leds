@@ -47,3 +47,4 @@ https://twitter.com/ckarrie/status/1486347204881268738
   - each char is a disc
   - `0` = off, `1` = read, `2` = write, `3` = read + write
   - `,15` = shift of 15 led's
+- ggf. Umstellung auf https://github.com/giampaolo/psutil/
