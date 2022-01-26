@@ -29,9 +29,9 @@ where `192.168.178.100` is the IP of your Raspberry
 
 # LED Colors
 
-yellow = reading only
-red = writing only
-blue = writing + reading
+- yellow = reading only
+- red = writing only
+- blue = writing + reading
 
 # History
 
