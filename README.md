@@ -40,3 +40,11 @@ where `192.168.178.100` is the IP of your Raspberry
 https://twitter.com/ckarrie/status/1486347204881268738
 
 ![Stromverbrauch](20220126_161619.jpg)
+
+# Todo
+- `socketserver.ThreadingTCPServer` for using multiple clients
+- rework of tcp message send:
+  - `"210210120121,15"`
+  - each char is a disc
+  - `0` = off, `1` = read, `2` = write
+  - `,15` = shift of 15 led's
