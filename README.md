@@ -26,3 +26,10 @@ Python-Bindings for WS281x LED stripes:
    `sudo python3 hdd2tcp.py 192.168.178.100`
 
 where `192.168.178.100` is the IP of your Raspberry
+
+
+# History
+
+## V1 26.01.2022
+
+https://twitter.com/ckarrie/status/1486347204881268738
