@@ -38,3 +38,5 @@ where `192.168.178.100` is the IP of your Raspberry
 ## V1 26.01.2022
 
 https://twitter.com/ckarrie/status/1486347204881268738
+
+![Stromverbrauch](20220126_161619.jpg)
