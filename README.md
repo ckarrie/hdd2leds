@@ -18,7 +18,11 @@ Python-Bindings for WS281x LED stripes:
 # Run
 
 1. run `tcp2leds.py` on your Raspberry Pi with sudo (sudo is required for GPIO)
+
    `sudo python3 tcp2leds.py`
+
 2. run `hdd2tcp.py` on your linux system with sudo (sudo is required for reading inside `/sys/block/`)
+
    `sudo python3 hdd2tcp.py 192.168.178.100`
-   where `192.168.178.100` is the IP of your Raspberry
+
+where `192.168.178.100` is the IP of your Raspberry
