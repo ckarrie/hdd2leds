@@ -7,6 +7,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("ip", help="IP to send to")
+parser.add_argument("--shift", type=int, help="Shift HDD number", default=0)
 args = parser.parse_args()
 
 # Create a TCP/IP socket
@@ -87,7 +88,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            for disc_nr, d in enumerate(discs):
+            for disc_nr, d in enumerate(discs, start=args.shift):
                 rw = get_disc_activity(d)
                 d_name = str(d).replace("/sys/block/", "").replace("/stat", "")
                 try:
