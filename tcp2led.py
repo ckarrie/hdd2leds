@@ -3,6 +3,7 @@ import sys
 import time
 from rpi_ws281x import PixelStrip, Color
 import argparse
+import threading
 
 
 # Create a TCP/IP socket
@@ -14,10 +15,10 @@ print('starting up on {} port {}'.format(*server_address))
 sock.bind(server_address)
 
 # Listen for incoming connections
-sock.listen(1)
+sock.listen(10)
 
 # LED strip configuration:
-LED_COUNT = 60        # Number of LED pixels. (1m = 60 LED's)
+LED_COUNT = 60        # Number of LED pixels.
 LED_PIN = 18          # GPIO pin connected to the pixels (18 uses PWM!).
 # LED_PIN = 10        # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -38,16 +39,12 @@ color_green = Color(0, 255, 0)
 color_blue = Color(0, 0, 255)
 color_yellow = Color(255, 255, 0)
 
-while True:
-    # Wait for a connection
-    print('waiting for a connection')
-    connection, client_address = sock.accept()
+def client_process_thread(conn, client_address, strip):
     try:
         print('connection from', client_address)
-
         # Receive the data in small chunks and retransmit it
         while True:
-            data = connection.recv(7)
+            data = conn.recv(7)
             #print('received {!r}'.format(data))
             dec = data.decode()
             if not len(dec):
@@ -70,17 +67,13 @@ while True:
                     color = color_off
                 strip.setPixelColor(int(hddnr), color)
                 strip.show()
-
-            #if data:
-            #    print('sending data back to the client')
-            #    connection.sendall(data)
-            #dec = data.decode()
-            #if dec.endswith(";"):
-            #    print(dec)
-            #else:
-            #    #print('no data from', client_address)
-            #    break
-
     finally:
-        # Clean up the connection
-        connection.close()
+        conn.close()
+
+while True:
+    # Wait for a connection
+    print('waiting for a connection')
+    conn, client_address = sock.accept()
+    threading.Thread(target=client_process_thread, args=(conn, client_address, strip)).start()
+
+sock.close()
