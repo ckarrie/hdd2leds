@@ -23,6 +23,14 @@ discs = sorted(list(discs))
 
 ro_wo_discs = {}
 
+for i, disc in enumerate(discs, start=0):
+    shift = i + args.shift
+    if args.shift:
+        print(f"ID={i} -> {shift}: {disc}")
+    else:
+        print(f"ID={i}: {disc}")
+
+
 def get_disc_activity(d):
     f = open(d).read()
     f = f.split()
