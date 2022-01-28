@@ -1,9 +1,15 @@
 import time
-import curses
 from pathlib import Path
 import socket
 import sys
 import argparse
+import zlib
+
+COLOR_CODE_READ = 'y'
+COLOR_CODE_WRITE = 'r'
+COLOR_CODE_RW = 'b'
+COLOR_IGNORE = '-'
+COLOR_OFF = '0'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("ip", help="IP to send to")
@@ -37,90 +43,32 @@ def get_disc_activity(d):
     r, w = int(f[0]), int(f[4])
     prev = ro_wo_discs.get(d)
     if not prev:
-        prev = {'r': 0, 'w': 0, 'flash_r': False, 'flash_w': False, 'diff_r': 0, 'diff_w': 0}
+        prev = {'r': 0, 'w': 0}
         
     ro, wo = prev['r'], prev['w']
     ro_wo_discs[d] = {
         'r': r, 
-        'w': w, 
-        'flash_r': r != ro, 
-        'flash_w': w != wo,
-        #'diff_r': abs(r - ro),  # not speed, see https://www.kernel.org/doc/Documentation/block/stat.txt
-        #'diff_w': abs(w - wo)
+        'w': w,
     }
     
-    if ro_wo_discs[d]['flash_r']:
-        r = "READ"
-    else:
-        r = "    "
-    if ro_wo_discs[d]['flash_w']:
-        w = "WRITE"
-    else:
-        w = "     "
-    
-    return r, w
-    
-    """
-    print_items = []
-    for d, rw_data in ro_wo_discs.items():
-        if rw_data['flash_r']:
-            r = "READ"
-        else:
-            r = "    "
-        if rw_data['flash_w']:
-            w = "WRITE"
-        else:
-            w = "     "
-        txt = u"{}: \u001b[31m{} \u001b[32m{}".format(d, r, w)
-        #print(txt)
-        stdscr.addstr(0, 0, "Disc: {0}".format(d))
-        stdscr.addstr(1, 0, txt)
-        stdscr.refresh()
-    
-    #sys.stdout.write("{}\r".format("".join(print_items)))
-    #sys.stdout.flush()   
-    #time.sleep(.1)
-    """
+    if r != ro and w == wo:
+        return COLOR_CODE_READ
+    if w != wo and r == ro:
+        return COLOR_CODE_WRITE
+    if w != wo and r != ro:
+        return COLOR_CODE_RW
+    return COLOR_OFF
 
 
 if __name__ == "__main__":
-    stdscr = curses.initscr()
-    curses.noecho()
-    curses.cbreak()
-    curses.start_color()
-    curses.use_default_colors()
-    for i in range(0, curses.COLORS):
-        curses.init_pair(i + 1, i, -1)
-        
-    # Colors see https://stackoverflow.com/a/22166613
-
-    try:
-        while True:
-            for disc_nr, d in enumerate(discs, start=args.shift):
-                rw = get_disc_activity(d)
-                d_name = str(d).replace("/sys/block/", "").replace("/stat", "")
-                try:
-                    #stdscr.addstr(disc_nr, 0, "Disc: {0}".format(d_name))
-                    #stdscr.addstr(disc_nr, 13, "|", curses.color_pair(243))
-                    #stdscr.addstr(disc_nr, 16, rw[0], curses.color_pair(149))
-                    #stdscr.addstr(disc_nr, 22, "|", curses.color_pair(243))
-                    #stdscr.addstr(disc_nr, 25, rw[1], curses.color_pair(202))
-                    #stdscr.addstr(disc_nr, 32, "|", curses.color_pair(243))
-                    r = 0
-                    w = 0
-                    if len(rw[0].strip()):
-                        r = 1
-                    if len(rw[1].strip()):
-                        w = 1
-                    message = '{:2d},{},{};'.format(disc_nr, r, w)
-                    sock.sendall(message.encode())
-                    
-                except curses.error:
-                    pass
-            #stdscr.refresh()
-            time.sleep(0.05)
-    finally:
-        curses.echo()
-        curses.nocbreak()
-        curses.endwin()
-
+    while True:
+        msg_list = ['-'] * 120
+        for disc_nr, d in enumerate(discs, start=args.shift):
+            code = get_disc_activity(d)
+            msg_list[disc_nr] = code
+        msg = ''.join(msg_list)
+        msg_b = msg.encode()
+        #print("> ", msg_b)
+        sock.sendall(msg_b)
+        time.sleep(0.05)
+        #print(zlib.compress(msg_b))
