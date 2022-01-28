@@ -39,36 +39,52 @@ color_green = Color(0, 255, 0)
 color_blue = Color(0, 0, 255)
 color_yellow = Color(255, 255, 0)
 
+COLOR_CODES = {
+    '-': None,
+    '0': color_off,
+    'y': color_yellow,
+    'r': color_red,
+    'b': color_blue,
+    'g': color_green,
+}
+
+
 def client_process_thread(conn, client_address, strip):
     try:
         print('connection from', client_address)
         # Receive the data in small chunks and retransmit it
         while True:
-            data = conn.recv(7)
+            data = conn.recv(120)
             #print('received {!r}'.format(data))
             dec = data.decode()
             if not len(dec):
                 print("hdd2tcp not running?")
-                time.sleep(1)
+                break
             else:
-                dec = dec.replace(";", "")
-                #print(f"> {dec}")
-                hddnr, r, w = dec.split(',')
-                #print(f"  hddnr={hddnr} r={r} w={w}")
-                r_on = int(r) == 1
-                w_on = int(w) == 1
-                if r_on and not w_on:
-                    color = color_yellow #color_green
-                elif w_on and not r_on:
-                    color = color_red
-                elif r_on and w_on:
-                    color = color_blue
-                else:
-                    color = color_off
-                strip.setPixelColor(int(hddnr), color)
+                for pos, char in enumerate(dec):
+                    color = COLOR_CODES[char]
+                    if color is not None:
+                        strip.setPixelColor(pos, color)
                 strip.show()
     finally:
         conn.close()
+
+def led_test():
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, color_off)
+        strip.show()
+
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, color_green)
+        strip.show()
+
+    time.sleep(1)
+
+    for i in range(LED_COUNT):
+        strip.setPixelColor(i, color_off)
+        strip.show()
+
+led_test()
 
 while True:
     # Wait for a connection
